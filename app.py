@@ -60,7 +60,7 @@ def get_feedback(questions, answers):
         "Please provide:\n"
         "1. An executive summary of my performance\n"
         "2. Detailed feedback for each answer\n"
-        "3. Recommendations to improve future interviews\n\n"
+        "3. Recommendations to improve future interviews\n\n"  # Fixed the incomplete string
         f"Questions and Answers:\n{qa_list}"
     )
 
@@ -74,10 +74,11 @@ def get_feedback(questions, answers):
     )
 
     return response.choices[0].message.content.strip()
+
 # ---- FUNCTION TO CHECK IF THIS IS REAL QUESTION ----
 def is_valid_profession(profession):
     prompt = (
-        f'Is "{profession}" a real job or profession? '
+        f'Is "{profession}" a real profession in the IT or software industry? '
         'Just answer with Yes or No.'
     )
 
@@ -98,13 +99,16 @@ st.title("🎯 Interview Practice App")
 # ---- SETUP FORM ----
 if not st.session_state.interview_started:
     with st.form("setup_form"):
-        position = st.text_input("Position you're interviewing for:")
+        position = st.text_input(
+            "IT position you're interviewing for (max 50 characters):",
+            max_chars=50
+        )
         difficulty = st.selectbox("Select difficulty level:", ["Easy", "Medium", "Hard"])
         num_questions = st.slider("How many questions?", 1, 10, 3)
         submitted = st.form_submit_button("Start Interview")
 
         if submitted and position:
-           with st.spinner("Checking position validity..."):
+            with st.spinner("Checking position validity..."):
                 if is_valid_profession(position):
                     st.session_state.questions = generate_questions(position, difficulty, num_questions)
                     st.session_state.interview_started = True
@@ -112,7 +116,10 @@ if not st.session_state.interview_started:
                     st.session_state.answers = [""] * num_questions
                     st.rerun()
                 else:
-                    st.error(f"❌ Sorry, '{position}' does not appear to be a valid profession. Please enter a real job title.")
+                    st.error(
+                        f"❌ Sorry, '{position}' does not appear to be a valid IT or software-related profession. Please try another title."
+                    )
+
 
 
 
